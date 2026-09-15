@@ -20,3 +20,5 @@ Project topic:
 - 'code/': R scripts for cleaning, analysis
 - 'eda/': Exploratory data analysis report
 - 'shiny/': Shiny interactive website
+
+## Expected Presentation date: Dec $4^{th}$
