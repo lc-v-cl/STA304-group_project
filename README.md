@@ -1,5 +1,5 @@
 # STA304-group_project
-STA304H5 F Fall 2026 group project
+STA304H5 F Fall 2026 group project (Group 12)
 
 | Members | UtorID | Student Number | Github username | email |
 | --- | --- | --- | --- | ---- |
