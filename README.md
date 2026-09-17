@@ -6,7 +6,7 @@ STA304H5 F Fall 2026 group project
 | Junlin Zhu | zhujunli | 1011147424 | lc-v-cl | sjl.zhu@mail.utoronto.ca |
 | Qingyu Li | liqing37 | 1011028530 | yuki29390-wq | qingyu.li@mail.utoronto.ca |
 | Tejas Kumar | kumarte2 | 1008304194 | Tejjark | tejas.kumar@mail.utoronto.ca | tejas.kumar@mail.utoronto.ca
-| Jane | lijin153 | 1008315556 | noresultli  | jinglijane.li@mail.utoronto.ca |
+| Jing Li | lijin153 | 1008315556 | noresultli  | jinglijane.li@mail.utoronto.ca |
 
 ## TA Github Username:
 
