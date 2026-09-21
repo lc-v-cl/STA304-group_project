@@ -11,11 +11,9 @@ STA304H5 F Fall 2026 group project (Group 12)
 ## TA Github Username:
 
 ## Project Status
-Presubmission (Group Formation Check-in, Sep 18)
-Project topics:
-- (30) Estimating the Mean Number of Hours of Sleep per Day Among STA304H5 Students.
-- (20) Assessing Students’ Campus Transportation Preferences.
-- (18) Estimating the Proportion of Students Participating in Internship Opportunities.
+##### Presubmission (Group Formation Check-in, Sep 18)
+##### Project topic: 
+- Estimating the Mean Number of Hours of Sleep per Day Among STA304H5 Students.
 
 ## Repository structure
 - 'proposal/': Project proposal
