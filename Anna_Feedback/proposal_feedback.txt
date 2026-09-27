@@ -1,0 +1,18 @@
+You will need to email me when you have changed your survey for me to post on Piazza.
+
+Disclaimer: in the process of constructing feedback, I recorded my audio and got AI to rephrase my feedback in a concise, clear manner so that I can mark faster + you get more detailed feedback. I did not run any of the assignments through AI.
+
+Question 4 (rating scale)
+Question 4 uses a five-point scale from very bad to very good. Please extend it to 7 points, for example by adding "terrible" and "excellent" at the ends. A 7-point scale gives you more variation to work with in your analysis. (You can also optionally do a 10-point scale.)
+
+Question 5 (hours of study)
+Please ask respondents to enter the actual number of hours per week they spend studying instead of choosing a range. This is not a personal question, so a range does not protect anyone, and it costs you quantitative data that would improve your results.
+
+Question 7 (number of courses)
+Some students take only one or two courses, and others take seven, for example students who want to graduate quickly or who study very part-time. Please make sure your options do not lump these students together, so you do not lose that variation. Asking for the actual number of courses would work well.
+
+Please make these changes to your questionnaire and let me know once you are done.
+
+(-0.1 due to issues with the questionnaire)
+
+0.9/1
