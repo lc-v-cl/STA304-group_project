@@ -1,0 +1,6 @@
+Study hours per week codebook entry
+Your codebook entry for study_hours_per_week describes range responses being recoded to their midpoint, with values over 25 capped at 26. This does not match your actual survey, which asks for a number rather than a range, and it does not match your data values either. Please double check this entry and correct it so your codebook accurately reflects how the variable was actually collected and coded. This is the kind of mismatch you need to watch for carefully between your codebook and your real data.
+
+-0.05
+
+0.95/1
