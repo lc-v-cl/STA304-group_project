@@ -1,0 +1,451 @@
+---
+title: "Sleep Patterns and Their Correlates Among STA304H5F Students"
+author: "Junlin Zhu, Qingyu Li, Tejas Kumar, Jing Li"
+affiliation: "University of Toronto"
+format:
+  pdf:
+    documentclass: article
+    geometry: "margin=1in"
+header-includes:
+  - \usepackage{fvextra}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+
+## 1. Data Description
+
+```{R}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(easystats)
+library(readxl)
+library(knitr)
+
+
+# Original voluntary-response pool
+df_all <- read_excel(
+  "STA304 Group 12 Cleaned Data.xlsx"
+)
+
+# Fixed random seed
+set.seed(30412)
+
+# Keep all 25 female responses
+female_sample <- df_all |>
+  dplyr::filter(gender == "Female")
+
+# Randomly select 25 of the 54 male responses
+male_sample <- df_all |>
+  dplyr::filter(gender == "Male") |>
+  dplyr::slice_sample(n = 25)
+
+# Combine the two strata
+df <- dplyr::bind_rows(
+  female_sample,
+  male_sample
+)
+
+# Verify balanced sampling
+stopifnot(
+  nrow(df) == 50,
+  sum(df$gender == "Female") == 25,
+  sum(df$gender == "Male") == 25
+)
+
+```
+
+We collected 84 responses from STA304H5F students through voluntary recruitment. Following our proposed sampling method, we constructed a gender-balanced sample from the response pool. All 25 female responses were retained, and 25 male responses were randomly selected without replacement from the 54 available male responses, using a fixed random seed. The final analysis sample consisted of 50 students, with 25 female and 25 male respondents. The five responses in the Other and Prefer not to disclose categories were excluded from this balanced subsample.
+
+Because participation in the initial survey was voluntary, the response pool may be subject to selection bias, as students who chose to respond may differ from those who did not. Although stratified random subsampling balanced the male and female groups within our sample, it does not eliminate this potential bias or guarantee that the sample is representative of all STA304H5F students.
+
+## 2. Summary Statistics
+
+### Quantitative Variables
+
+```{R}
+#| echo: false
+#| message: false
+quant_vars <- c("sleep_hours_per_night", "study_hours_per_week",
+                "early_class_days", "exercise_days_per_week",
+                "courses_this_semester", "sleep_quality")
+
+sum_tab <- data.frame(
+  Variable = quant_vars,
+  Mean   = unname(sapply(df[quant_vars], mean,   na.rm = TRUE)),
+  Median = unname(sapply(df[quant_vars], median, na.rm = TRUE)),
+  SD = sapply(df[quant_vars], sd, na.rm = TRUE),
+  IQR = sapply(df[quant_vars], IQR, na.rm = TRUE),
+  n = sapply(df[quant_vars], function(x) sum(!is.na(x)))
+)
+
+sum_tab$Variable <- c(
+  "Average Nightly Sleep (hours)",
+  "Weekly Study Hours",
+  "Days with Early Classes",
+  "Weekly Exercise Days",
+  "Courses This Semester",
+  "Sleep Quality (1-7)"
+)
+
+knitr::kable(
+  sum_tab,
+  digits = 2,
+  row.names = FALSE,
+  caption = "Summary statistics for quantitative variables"
+)
+```
+
+On average, students slept about 7.3 hours per night (median = 7) and studied about 12.8 hours per week (median = 10). The mean weekly study time is higher than its median, suggesting possible right-skewness. Students had a median of 1 day with early classes per week, while the average was 0.70 days.
+
+\newpage
+
+### Categorical Variables
+
+```{r}
+#| echo: false
+#| message: false
+
+datawizard::data_tabulate(
+  df,
+  c("gender", "living_arrangement")
+) |> print_md()
+
+
+lecture_tab <- as.data.frame(
+  table(df$lecture_section, useNA = "ifany")
+)
+
+names(lecture_tab) <- c("Lecture Section", "N")
+
+
+lecture_tab$Percentage <- sprintf(
+  "%.2f%%",
+  100 * lecture_tab$N / sum(lecture_tab$N)
+)
+
+
+knitr::kable(
+  lecture_tab,
+  row.names = FALSE,
+  caption = "Frequency Distribution of Lecture Sections"
+)
+
+```
+
+The gender-balanced sample contains 25 female students (50%) and 25 male students (50%), consistent with our stratified subsampling design. For living arrangement, the largest group is Off-campus with family (26, 52%), followed by Off-campus with roommates (13, 26%) and Off-campus alone (11, 22%). For lecture section, 28 students (56%) were enrolled in LEC0101 and 22 students (44%) in LEC0102.
+
+## 3. Graphs and Tables
+
+```{R}
+#| echo: false
+#| fig-align: center
+#| fig-width: 5.5
+#| fig-height: 3.5
+#| fig-cap: "Boxplot comparing nightly sleep duration between 25 female and 25 male respondents. Male respondents have a slightly higher median sleep duration and a smaller interquartile range, while female respondents show greater variability in their reported sleep hours."
+
+
+
+
+df$gender <- factor(
+  df$gender,
+  levels = c("Female", "Male")
+)
+boxplot(sleep_hours_per_night ~ gender, data = df,
+        main = "Sleep Duration by Gender",
+        xlab = "Gender",
+        ylab = "Average hours of sleep per night",
+        col = c("#FF6666", "#6699FF"))
+```
+
+```{R}
+#| echo: false
+#| message: false
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 3.2
+#| fig-cap: "Scatterplot showing the relationship between weekly study hours and nightly sleep duration. The fitted line indicates a negative association, although observations vary considerably around the line."
+
+ggplot(df, aes(x = study_hours_per_week,
+               y = sleep_hours_per_night)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "Hours spent studying per week",
+       y = "Average hours of sleep per night") +
+  ggtitle("Sleep vs Study Time")
+```
+
+## 4. Model Assumption Checks
+
+```{R}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 6
+#| fig-cap: "Regression model diagnostics."
+model <- lm(sleep_hours_per_night ~ study_hours_per_week, data = df)
+performance::check_model(model,
+    check = c("qq", "normality", "linearity", "homogeneity"))
+```
+
+The diagnostic plots were used to assess the assumptions of the simple linear regression model. The residual normality plots suggest that the residuals are approximately normally distributed, with only minor deviations in the tails. The residuals-versus-fitted plot shows no clear systematic pattern, providing no strong evidence against linearity. The spread of residuals also appears relatively stable across fitted values, with no obvious funnel-shaped pattern, suggesting that the homogeneity of variance assumption is reasonably satisfied. However, these visual checks do not establish that the assumptions hold exactly.
+
+## 5. Statistical Tests
+
+### RQ2: Gender vs Sleep Duration (Two-sample t-test)
+
+```{R}
+#| echo: false
+#| message: false
+#| warning: false
+# Welch t-test comparing the two equally sized
+# gender strata in the 50-person analysis sample
+res <- t.test(sleep_hours_per_night ~ gender, data = df,
+              subset = gender %in% c("Male", "Female"))
+report::report(res)
+```
+
+Female students slept an average of 7.20 hours per night, compared with 7.36 hours for male students. The Welch two-sample t-test gave t(45.41) = -0.50, p = 0.623. Since p \> 0.05, we fail to reject the null hypothesis. There is insufficient evidence of a difference in mean nightly sleep duration between female and male students in the balanced sample.
+
+### RQ1: Sleep vs Study Time (Multiple Regression with AIC Selection)
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 8
+#| out-width: "100%"
+#| fig-align: center
+#| fig-cap: "Diagnostic plots for the final multiple regression model."
+
+full_model <- lm(
+  sleep_hours_per_night ~
+    study_hours_per_week +
+    early_class_days +
+    exercise_days_per_week +
+    courses_this_semester +
+    living_arrangement,
+  data = df
+)
+
+final_model <- MASS::stepAIC(
+  full_model,
+  trace = FALSE
+)
+
+performance::check_model(
+  final_model,
+  check = c(
+    "qq",
+    "normality",
+    "linearity",
+    "homogeneity"
+  )
+)
+```
+
+For the final multiple regression model, the residual normality plots suggest an approximately normal distribution, although some deviations are visible. The residuals-versus-fitted plot does not show a clear systematic trend, providing no strong visual evidence of a violation of linearity. The scale-location plot shows some variation in residual spread across fitted values, but no pronounced funnel-shaped pattern. Therefore, there is no strong visual evidence of severe heteroscedasticity, although the assumption of constant variance cannot be confirmed conclusively from these plots. Overall, the diagnostics do not indicate a major violation that would clearly invalidate the use of this linear model.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+report::report(final_model)
+```
+
+After AIC-based selection, the final model retained study_hours_per_week, exercise_days_per_week, and living_arrangement, while early_class_days and courses_this_semester were removed. The final model explained approximately 28% of the variation in nightly sleep duration (R² = 0.28, p = 0.004).
+
+Weekly study hours showed a statistically significant negative association with nightly sleep duration ($\beta$ = -0.05, p = 0.012). Holding the other predictors constant, each additional hour of weekly study was associated with approximately 0.05 fewer hours (about 3 minutes) of sleep per night.
+
+Exercise days showed a positive but non-significant association ($\beta$ = 0.12, p = 0.082). Compared with students living off-campus alone, those living with roommates had an estimated 0.82 additional hours of nightly sleep, but this difference was not statistically significant at the 0.05 level (p = 0.055).
+
+These findings are associations rather than evidence of causation. Since the final regression model was selected using AIC, the reported p-values do not account for uncertainty introduced by model selection and should be interpreted cautiously. These exploratory findings require further confirmation.
+
+# Appendix
+
+```{r}
+#| eval: false
+#| echo: true
+
+# Packages and data
+library(tidyverse)
+library(easystats)
+library(readxl)
+library(knitr)
+
+
+# Original voluntary-response pool
+df_all <- read_excel(
+  "STA304 Group 12 Cleaned Data.xlsx"
+)
+
+# Fixed random seed
+set.seed(30412)
+
+# Keep all 25 female responses
+female_sample <- df_all |>
+  dplyr::filter(gender == "Female")
+
+# Randomly select 25 of the 54 male responses
+male_sample <- df_all |>
+  dplyr::filter(gender == "Male") |>
+  dplyr::slice_sample(n = 25)
+
+# Combine the two strata
+df <- dplyr::bind_rows(
+  female_sample,
+  male_sample
+)
+
+# Verify balanced sampling
+stopifnot(
+  nrow(df) == 50,
+  sum(df$gender == "Female") == 25,
+  sum(df$gender == "Male") == 25
+)
+
+# Quantitative summary statistics
+quant_vars <- c(
+  "sleep_hours_per_night",
+  "study_hours_per_week",
+  "early_class_days",
+  "exercise_days_per_week",
+  "courses_this_semester",
+  "sleep_quality"
+)
+
+sum_tab <- data.frame(
+  Variable = quant_vars,
+  Mean = unname(sapply(df[quant_vars], mean, na.rm = TRUE)),
+  Median = unname(sapply(df[quant_vars], median, na.rm = TRUE)),
+  SD = unname(sapply(df[quant_vars], sd, na.rm = TRUE)),
+  IQR = unname(sapply(df[quant_vars], IQR, na.rm = TRUE)),
+  n = unname(sapply(df[quant_vars], function(x) sum(!is.na(x))))
+)
+
+sum_tab$Variable <- c(
+  "Average Nightly Sleep (hours)",
+  "Weekly Study Hours",
+  "Days with Early Classes",
+  "Weekly Exercise Days",
+  "Courses This Semester",
+  "Sleep Quality (1-7)"
+)
+
+knitr::kable(
+  sum_tab,
+  digits = 2,
+  row.names = FALSE,
+  caption = "Summary statistics for quantitative variables"
+)
+
+# Categorical summary statistics
+datawizard::data_tabulate(
+  df,
+  c("gender", "living_arrangement")
+) |> print_md()
+
+lecture_tab <- as.data.frame(
+  table(df$lecture_section, useNA = "ifany")
+)
+
+names(lecture_tab) <- c("Lecture Section", "N")
+
+lecture_tab$Percentage <- sprintf(
+  "%.2f%%",
+  100 * lecture_tab$N / sum(lecture_tab$N)
+)
+
+knitr::kable(
+  lecture_tab,
+  row.names = FALSE,
+  caption = "Frequency Distribution of Lecture Sections"
+)
+
+# Gender factor labels
+df$gender <- factor(
+  df$gender,
+  levels = c("Female", "Male")
+)
+
+# Figure 1: Sleep by gender
+boxplot(
+  sleep_hours_per_night ~ gender,
+  data = df,
+  main = "Sleep Duration by Gender",
+  xlab = "Gender",
+  ylab = "Average hours of sleep per night",
+  col = c("#FF6666", "#6699FF")
+)
+
+# Figure 2: Sleep vs study time
+ggplot(
+  df,
+  aes(
+    x = study_hours_per_week,
+    y = sleep_hours_per_night
+  )
+) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Hours spent studying per week",
+    y = "Average hours of sleep per night"
+  ) +
+  ggtitle("Sleep vs Study Time")
+
+# Simple regression diagnostics
+model <- lm(
+  sleep_hours_per_night ~ study_hours_per_week,
+  data = df
+)
+
+performance::check_model(
+  model,
+  check = c(
+    "qq", "normality",
+    "linearity", "homogeneity"
+  )
+)
+
+# Welch two-sample t-test
+res <- t.test(
+  sleep_hours_per_night ~ gender,
+  data = df,
+  subset = gender %in% c("Male", "Female")
+)
+
+report::report(res)
+
+# Multiple regression
+full_model <- lm(
+  sleep_hours_per_night ~
+    study_hours_per_week +
+    early_class_days +
+    exercise_days_per_week +
+    courses_this_semester +
+    living_arrangement,
+  data = df
+)
+
+# AIC-based model selection
+final_model <- MASS::stepAIC(
+  full_model,
+  trace = FALSE
+)
+
+# Final model diagnostics
+performance::check_model(
+  final_model,
+  check = c(
+    "qq", "normality",
+    "linearity", "homogeneity"
+  )
+)
+
+# Final statistical report
+report::report(final_model)
+```
+
+------------------------------------------------------------------------
