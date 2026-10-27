@@ -1,0 +1,23 @@
+STA304 Exploratory Data Analysis Feedback
+
+Overall, I do not have a major issue with the report, but a few small things stood out.
+
+Disclaimer: in the process of constructing feedback, I recorded my audio and got AI to rephrase my feedback in a concise, clear manner so that I can mark faster + you get more detailed feedback. I did not run any of the assignments through AI.
+
+Reporting model results
+
+I understand you used report::report(), which I recommended. Using the raw output in RQ2 is fine because it is relatively small. In RQ1, though, the output goes through every single coefficient, which is redundant, repetitive, and long. A table would present these results better. You can then draw attention to the coefficients whose p-values are below the $\alpha$ threshold.
+
+Concluding sentences
+
+Your conclusion says, "These findings are associations rather than evidence of causation. Since the final regression model was selected using AIC, the reported p-values do not account for uncertainty introduced by model selection and should be interpreted cautiously. These exploratory findings require further confirmation." A few things stood out.
+
+First, you do not explain why the findings are associations. You can say that because this is an observational study, the findings are associations and you cannot draw causal conclusions.
+
+Second, you say the findings require further confirmation but never say what confirmation is needed, so the statement is vague. For example, you could say the selected model should be refit on a new sample, since p-values after AIC selection tend to be optimistic, or that the results need to be replicated with a larger and independent group of students.
+
+Grade breakdown
+
+No marks were deducted.
+
+Total (2 / 2)
