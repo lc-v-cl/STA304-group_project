@@ -50,3 +50,7 @@ The previous version was run locally by the group. Screenshots matched the EDA d
 ## Appearance
 
 The interface uses U of T Blue (#1E3765). Plot palettes are Bluish Green (default), U of T Blue and Warm Minimal. Boxplots use a uniform fill; histogram bins alternate the first two palette colours.
+
+## Interactive Shiny Website
+
+[Student Sleep Explorer](https://01a21476-749a-5c8d-cfb9-6f75eae84016.share.connect.posit.cloud/)
